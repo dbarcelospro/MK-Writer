@@ -213,6 +213,10 @@ def create_new_package(target_package_path: str, title: str = "Novo Documento Ac
         os.makedirs(pos_dir, exist_ok=True)
         os.makedirs(img_dir, exist_ok=True)
 
+        source_logo = os.path.join(project_root, "resources", "logo.svg")
+        if os.path.isfile(source_logo):
+            shutil.copy2(source_logo, os.path.join(img_dir, "logo.svg"))
+
         # 1. main.md
         main_content = """<!-- ========================================== -->
 <!-- ESTILO                                     -->
@@ -247,8 +251,7 @@ def create_new_package(target_package_path: str, title: str = "Novo Documento Ac
 <div class="capa">
 <div>
 <div class="capa-topo">
-<div class="capa-iff-texto">NOME DA INSTITUIÇÃO DE ENSINO</div>
-<div class="capa-iff-campus">Centro / Departamento Universitário</div>
+<img src="imagens/logo.svg" height="42" alt="Logotipo Institucional">
 </div>
 
 <div class="capa-subcabecalho">

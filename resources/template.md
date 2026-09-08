@@ -331,37 +331,35 @@ ol ol ol {
 
 <!-- CAPA MODELO DO PROFESSOR -->
 <div class="capa">
+<div class="capa-topo">
+<img src="Imagens/logo.svg" height="42" alt="Logotipo Institucional">
+</div>
 
-  <div class="capa-topo">
-    <!-- Inserir logotipo institucional aqui caso desejado: <img src="Imagens/logo.svg" height="42" alt="Logotipo"> -->
-  </div>
+<div class="capa-subcabecalho">
+PRÓ-REITORIA DE PESQUISA E INOVAÇÃO<br>
+PROGRAMA DE PÓS-GRADUAÇÃO EM ENGENHARIA AMBIENTAL<br>
+MESTRADO EM ENGENHARIA AMBIENTAL<br>
+MODALIDADE PROFISSIONAL
+</div>
 
-  <div class="capa-subcabecalho">
-    PRÓ-REITORIA DE PESQUISA E INOVAÇÃO<br>
-    PROGRAMA DE PÓS-GRADUAÇÃO EM ENGENHARIA AMBIENTAL<br>
-    MESTRADO EM ENGENHARIA AMBIENTAL<br>
-    MODALIDADE PROFISSIONAL
-  </div>
+<div class="capa-titulo">
+TÍTULO DO PROJETO DE PESQUISA OU DISSERTAÇÃO
+</div>
 
-  <div class="capa-titulo">
-    TÍTULO DO PROJETO DE PESQUISA OU DISSERTAÇÃO
-  </div>
+<div class="capa-autor">
+NOME COMPLETO DO AUTOR
+</div>
 
-  <div class="capa-autor">
-    NOME COMPLETO DO AUTOR
-  </div>
+<div class="capa-nota">
+Proposta de Projeto de Pesquisa da linha XXXXX, área de atuação WWWWW, apresentada para avaliação.<br><br>
+<b>Orientação:</b> Prof. Dr. YYYYY.<br>
+<b>Coorientação:</b> Prof. Dr. ZZZZZZ (opcional).
+</div>
 
-  <div class="capa-nota">
-    Proposta de Projeto de Pesquisa da linha XXXXX, área de atuação WWWWW, apresentada para avaliação.<br><br>
-    <b>Orientação:</b> Prof. Dr. YYYYY.<br>
-    <b>Coorientação:</b> Prof. Dr. ZZZZZZ (opcional).
-  </div>
-
-  <div class="capa-rodape">
-    Cidade/UF<br>
-    2026
-  </div>
-
+<div class="capa-rodape">
+Cidade/UF<br>
+2026
+</div>
 </div>
 
 <div class="page-break"></div>
