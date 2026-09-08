@@ -48,12 +48,6 @@ jobs:
           path: MK-Writer-Windows.zip
           retention-days: 30
 
-      - name: Anexar ao Release (se disparado por tag)
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
-        with:
-          files: MK-Writer-Windows.zip
-
   build-linux:
     name: Compilar MK Writer para Linux
     runs-on: ubuntu-latest
@@ -89,8 +83,45 @@ jobs:
           path: MK-Writer-Linux.tar.gz
           retention-days: 30
 
-      - name: Anexar ao Release (se disparado por tag)
-        if: startsWith(github.ref, 'refs/tags/')
+  publish-release:
+    name: Publicar Release Oficial no GitHub
+    needs: [build-windows, build-linux]
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Baixar artefato Windows
+        uses: actions/download-artifact@v4
+        with:
+          name: MK-Writer-Windows
+
+      - name: Baixar artefato Linux
+        uses: actions/download-artifact@v4
+        with:
+          name: MK-Writer-Linux
+
+      - name: Criar Release no GitHub
         uses: softprops/action-gh-release@v2
         with:
-          files: MK-Writer-Linux.tar.gz
+          tag_name: ${{ github.ref_name }}
+          name: MK Writer ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            MK-Writer-Windows.zip
+            MK-Writer-Linux.tar.gz
+          body: |
+            ## 📘 MK Writer - Editor & Compilador Acadêmico Modular
+
+            Seja bem-vindo à versão oficial do **MK Writer**!
+
+            ### 📦 Binários Prontos para Execução
+            * **Windows (10/11 x64)**: Baixe `MK-Writer-Windows.zip`, descompacte e execute `MK-Writer.exe`.
+            * **Linux (x64)**: Baixe `MK-Writer-Linux.tar.gz`, descompacte e execute `./MK-Writer/MK-Writer`.
+
+            ### ✨ Principais Recursos desta Versão
+            * ✍️ **Editor Acadêmico Modular**: Organização em seções Pré-Textuais, Textuais e Pós-Textuais com suporte a `!include`.
+            * 📦 **Pacotes de Projeto (.mkw)**: Encapsulamento completo de capítulos, imagens, estilos ABNT e referências BibTeX em um arquivo único.
+            * 📄 **Visualizador PDF ABNT em Tempo Real**: Pré-visualização com margens 3-3-2-2 cm, fontes institucionais, sumário dinâmico e compilação instantânea (`F5`).
+            * 📐 **Barra de Ferramentas Acadêmica**: Atalhos com um clique para fórmulas LaTeX, figuras centralizadas com fonte obrigatória, tabelas e citações.
+            * 🤖 **Assistente IA Integrado**: Apoio à redação científica e adequação do tom acadêmico.

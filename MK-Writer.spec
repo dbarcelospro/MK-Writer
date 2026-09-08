@@ -6,7 +6,7 @@ a = Analysis(
     ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('resources', 'resources'), ('app', 'app')],
+    datas=[('resources', 'resources'), ('app', 'app'), ('Imagens', 'Imagens')],
     hiddenimports=[
         'PyQt5.QtWebEngineWidgets',
         'PyQt5.QtWebEngineCore',
