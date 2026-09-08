@@ -1,0 +1,4 @@
+PyQt5>=5.15.0
+PyQtWebEngine>=5.15.0
+pypandoc_binary>=1.10
+weasyprint>=60.0

@@ -1,0 +1,35 @@
+# Ambientes virtuais
+venv/
+.venv/
+env/
+
+# Compilação e PyInstaller
+build/
+dist/
+*.spec.bak
+*.tar.gz
+*.zip
+
+# Caches e bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Logs e arquivos temporários
+*.log
+scratch/
+
+# Testes e PDFs gerados temporários
+test_*.pdf
+test_*.png
+*.pdf
+
+# Documentos e rascunhos de usuários
+Documentos/*.mkw
+Documentos/*_mkw/
+
+# Configurações de IDEs
+.vscode/
+.idea/
+.agents/
