@@ -77,18 +77,32 @@ def test_sync_workspace_modification():
 
 
 def test_pack_existing_project():
-    source_dir = os.path.abspath("Documentos/COLÓQUIO SEMINÁRIO I")
-    assert os.path.isdir(source_dir)
-
     with tempfile.TemporaryDirectory() as tmp_dir:
-        target_pkg = os.path.join(tmp_dir, "Coloquio_Seminario.mkw")
-        pack_project(source_dir, target_pkg, metadata={"title": "Colóquio Seminário I"})
+        source_dir = os.path.join(tmp_dir, "projeto_origem")
+        os.makedirs(os.path.join(source_dir, "01_Pre_Textual"), exist_ok=True)
+        os.makedirs(os.path.join(source_dir, "02_Textual"), exist_ok=True)
+        os.makedirs(os.path.join(source_dir, "03_Pos_Textual"), exist_ok=True)
+        with open(os.path.join(source_dir, "01_Pre_Textual", "01_capa.md"), "w", encoding="utf-8") as f:
+            f.write("# Capa\n")
+        with open(os.path.join(source_dir, "02_Textual", "01_intro.md"), "w", encoding="utf-8") as f:
+            f.write("# Intro\n")
+        with open(os.path.join(source_dir, "03_Pos_Textual", "01_refs.md"), "w", encoding="utf-8") as f:
+            f.write("# Refs\n")
+        with open(os.path.join(source_dir, "main.md"), "w", encoding="utf-8") as f:
+            f.write("# Projeto\n!include style.md\n")
+        with open(os.path.join(source_dir, "style.md"), "w", encoding="utf-8") as f:
+            f.write("/* Estilo */\n")
+        with open(os.path.join(source_dir, "referencias.bib"), "w", encoding="utf-8") as f:
+            f.write("@article{ref, author={Autor}, title={Titulo}, year={2024}}\n")
+
+        target_pkg = os.path.join(tmp_dir, "Projeto_Teste.mkw")
+        pack_project(source_dir, target_pkg, metadata={"title": "Projeto de Teste"})
 
         assert os.path.isfile(target_pkg)
         assert is_package_file(target_pkg)
 
         # Testa descompactação
-        ws_dir, meta = unpack_package(target_pkg, dest_dir=os.path.join(tmp_dir, "coloquio_ws"))
+        ws_dir, meta = unpack_package(target_pkg, dest_dir=os.path.join(tmp_dir, "ws_extraido"))
         assert os.path.isfile(os.path.join(ws_dir, "main.md"))
         assert os.path.isfile(os.path.join(ws_dir, "style.md"))
         assert os.path.isfile(os.path.join(ws_dir, "referencias.bib"))

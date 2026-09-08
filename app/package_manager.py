@@ -192,9 +192,7 @@ def create_new_package(target_package_path: str, title: str = "Novo Documento Ac
     with tempfile.TemporaryDirectory() as temp_dir:
         # Copia o style.md e abnt.csl se existirem no projeto, ou usa templates padrão
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
-        source_style = os.path.join(project_root, "Documentos", "COLÓQUIO SEMINÁRIO I", "style.md")
-        if not os.path.isfile(source_style):
-            source_style = os.path.join(project_root, "resources", "style.md")
+        source_style = os.path.join(project_root, "resources", "style.md")
 
         target_style = os.path.join(temp_dir, "style.md")
 

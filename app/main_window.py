@@ -97,12 +97,7 @@ class MainWindow(QMainWindow):
                     folder_to_open = recents[0]
 
         if not pkg_to_open and not folder_to_open:
-            default_root = os.path.abspath("Documentos/COLÓQUIO SEMINÁRIO I")
-            if not os.path.exists(default_root):
-                default_root = os.path.abspath("Documentos")
-            if not os.path.exists(default_root):
-                default_root = os.path.abspath(os.getcwd())
-            folder_to_open = default_root
+            folder_to_open = os.path.abspath(os.getcwd())
 
         self.project_root_dir = folder_to_open if folder_to_open else os.path.abspath(os.getcwd())
         if folder_to_open:
