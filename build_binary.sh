@@ -22,10 +22,13 @@ pip install pyinstaller
 echo "🚀 Compilando binário com PyInstaller..."
 pyinstaller --noconfirm MK-Writer.spec
 
-# Inclui script de instalação de atalho dentro da pasta distribuível
+# Inclui script de instalação de atalho e manual dentro da pasta distribuível
 if [ -f "instalar_atalho.sh" ]; then
     cp instalar_atalho.sh dist/MK-Writer/
     chmod +x dist/MK-Writer/instalar_atalho.sh
+fi
+if [ -f "MANUAL_DE_INSTALACAO.md" ]; then
+    cp MANUAL_DE_INSTALACAO.md dist/MK-Writer/
 fi
 
 echo "📦 Compactando em MK-Writer-Linux.tar.gz..."

@@ -36,6 +36,12 @@ jobs:
         run: |
           pyinstaller --noconfirm MK-Writer.spec
 
+      - name: Incluir atalhos e manuais na distribuição Windows
+        shell: powershell
+        run: |
+          if (Test-Path "criar_atalho.bat") { Copy-Item "criar_atalho.bat" -Destination "dist/MK-Writer/" }
+          if (Test-Path "MANUAL_DE_INSTALACAO.md") { Copy-Item "MANUAL_DE_INSTALACAO.md" -Destination "dist/MK-Writer/" }
+
       - name: Compactar pasta de distribuição Windows
         shell: powershell
         run: |
@@ -71,6 +77,16 @@ jobs:
       - name: Compilar aplicativo com PyInstaller
         run: |
           pyinstaller --noconfirm MK-Writer.spec
+
+      - name: Incluir atalho e manuais na distribuição Linux
+        run: |
+          if [ -f "instalar_atalho.sh" ]; then
+            cp instalar_atalho.sh dist/MK-Writer/
+            chmod +x dist/MK-Writer/instalar_atalho.sh
+          fi
+          if [ -f "MANUAL_DE_INSTALACAO.md" ]; then
+            cp MANUAL_DE_INSTALACAO.md dist/MK-Writer/
+          fi
 
       - name: Criar pacote .tar.gz
         run: |
