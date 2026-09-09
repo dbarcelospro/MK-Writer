@@ -30,6 +30,7 @@ from app.compiler import PDFCompilerThread
 from app.editor import MarkdownEditor
 from app.file_tree import ProjectFileTree
 from app.formatting_toolbar import FormattingToolbar
+from app.icons import get_icon
 from app.package_manager import (
     PACKAGE_EXTENSIONS,
     create_new_package,
@@ -346,15 +347,15 @@ class MainWindow(QMainWindow):
         # ── Menu Arquivo ──
         file_menu = menu_bar.addMenu("Arquivo")
 
-        act_new_pkg = file_menu.addAction("📦  Novo Pacote (.mkw)...")
+        act_new_pkg = file_menu.addAction(get_icon("new_package"), "Novo Pacote (.mkw)...")
         act_new_pkg.setShortcut("Ctrl+Shift+P")
         act_new_pkg.triggered.connect(self.create_new_package_dialog)
 
-        act_open_pkg = file_menu.addAction("📦  Abrir Pacote (.mkw)...")
+        act_open_pkg = file_menu.addAction(get_icon("open_package"), "Abrir Pacote (.mkw)...")
         act_open_pkg.setShortcut("Ctrl+Alt+O")
         act_open_pkg.triggered.connect(self.open_package_dialog)
 
-        act_open_folder = file_menu.addAction("📁  Abrir Pasta do Projeto...")
+        act_open_folder = file_menu.addAction(get_icon("folder"), "Abrir Pasta do Projeto...")
         act_open_folder.triggered.connect(self.select_project_folder)
 
         # Submenu de Projetos Recentes
@@ -363,22 +364,22 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
-        act_save = file_menu.addAction("💾  Salvar")
+        act_save = file_menu.addAction(get_icon("save"), "Salvar")
         act_save.setShortcut("Ctrl+S")
         act_save.triggered.connect(self.save_file)
 
-        act_save_all = file_menu.addAction("💾  Salvar Todas as Abas")
+        act_save_all = file_menu.addAction(get_icon("save"), "Salvar Todas as Abas")
         act_save_all.setShortcut("Ctrl+Shift+S")
         act_save_all.triggered.connect(self.save_all_files)
 
-        act_save_as = file_menu.addAction("💾  Salvar Arquivo Como...")
+        act_save_as = file_menu.addAction(get_icon("save"), "Salvar Arquivo Como...")
         act_save_as.setShortcut("Ctrl+Alt+S")
         act_save_as.triggered.connect(self.save_file_as)
 
-        act_save_as_pkg = file_menu.addAction("📦  Salvar Como Pacote (.mkw)...")
+        act_save_as_pkg = file_menu.addAction(get_icon("new_package"), "Salvar Como Pacote (.mkw)...")
         act_save_as_pkg.triggered.connect(self.save_as_package_dialog)
 
-        act_pack_folder = file_menu.addAction("📦  Empacotar Pasta Atual em (.mkw)...")
+        act_pack_folder = file_menu.addAction(get_icon("open_package"), "Empacotar Pasta Atual em (.mkw)...")
         act_pack_folder.triggered.connect(self.export_current_folder_as_package)
 
         file_menu.addSeparator()
@@ -387,18 +388,18 @@ class MainWindow(QMainWindow):
         act_new_file.setShortcut("Ctrl+N")
         act_new_file.triggered.connect(lambda: self.file_tree.create_new_file())
 
-        act_new_folder = file_menu.addAction("📁  Nova Pasta...")
+        act_new_folder = file_menu.addAction(get_icon("folder"), "Nova Pasta...")
         act_new_folder.setShortcut("Ctrl+Shift+N")
         act_new_folder.triggered.connect(lambda: self.file_tree.create_new_folder())
 
-        act_import_img = file_menu.addAction("🖼️  Importar Imagens para o Projeto...")
+        act_import_img = file_menu.addAction(get_icon("image"), "Importar Imagens para o Projeto...")
         act_import_img.setShortcut("Ctrl+Shift+I")
         act_import_img.triggered.connect(self.import_images_dialog)
 
-        act_open_sys_folder = file_menu.addAction("📂  Abrir Pasta do Projeto no Gerenciador...")
+        act_open_sys_folder = file_menu.addAction(get_icon("folder"), "Abrir Pasta do Projeto no Gerenciador...")
         act_open_sys_folder.triggered.connect(self.open_project_in_system_explorer)
 
-        act_open = file_menu.addAction("📂  Abrir Arquivo Avulso...")
+        act_open = file_menu.addAction(get_icon("folder"), "Abrir Arquivo Avulso...")
         act_open.setShortcut("Ctrl+O")
         act_open.triggered.connect(self.open_file_dialog)
 
@@ -414,7 +415,7 @@ class MainWindow(QMainWindow):
 
         file_menu.addSeparator()
 
-        act_export = file_menu.addAction("📥  Exportar PDF")
+        act_export = file_menu.addAction(get_icon("export"), "Exportar PDF")
         act_export.setShortcut("Ctrl+E")
         act_export.triggered.connect(self.export_pdf_dialog)
 
@@ -427,11 +428,11 @@ class MainWindow(QMainWindow):
         # ── Menu Editar ──
         edit_menu = menu_bar.addMenu("Editar")
 
-        act_undo = edit_menu.addAction("↩️  Desfazer")
+        act_undo = edit_menu.addAction(get_icon("undo"), "Desfazer")
         act_undo.setShortcut("Ctrl+Z")
         act_undo.triggered.connect(lambda: self.editor.undo() if self.editor else None)
 
-        act_redo = edit_menu.addAction("↪️  Refazer")
+        act_redo = edit_menu.addAction(get_icon("redo"), "Refazer")
         act_redo.setShortcut("Ctrl+Y")
         act_redo.triggered.connect(lambda: self.editor.redo() if self.editor else None)
 
@@ -533,33 +534,34 @@ class MainWindow(QMainWindow):
         """Toolbar com as ações mais usadas e atalhos rápidos para pacotes."""
         toolbar = QToolBar("Ações Rápidas", self)
         toolbar.setMovable(False)
+        toolbar.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.addToolBar(toolbar)
 
-        act_new_pkg = QAction("📦 Novo Pacote", self)
+        act_new_pkg = QAction(get_icon("new_package"), "Novo Pacote", self)
         act_new_pkg.setToolTip("Criar Novo Pacote MK Writer (.mkw) [Ctrl+Shift+P]")
         act_new_pkg.triggered.connect(self.create_new_package_dialog)
         toolbar.addAction(act_new_pkg)
 
-        act_open_pkg = QAction("📂 Abrir Pacote", self)
+        act_open_pkg = QAction(get_icon("open_package"), "Abrir Pacote", self)
         act_open_pkg.setToolTip("Abrir Pacote (.mkw / .mkdoc) [Ctrl+Alt+O]")
         act_open_pkg.triggered.connect(self.open_package_dialog)
         toolbar.addAction(act_open_pkg)
 
         toolbar.addSeparator()
 
-        act_save = QAction("💾 Salvar", self)
+        act_save = QAction(get_icon("save"), "Salvar", self)
         act_save.setToolTip("Salvar (Ctrl+S)")
         act_save.triggered.connect(self.save_file)
         toolbar.addAction(act_save)
 
         toolbar.addSeparator()
 
-        act_compile = QAction("⚡ Compilar", self)
+        act_compile = QAction(get_icon("compile"), "Compilar", self)
         act_compile.setToolTip("Compilar PDF (Ctrl+R / F5)")
         act_compile.triggered.connect(self.trigger_compilation)
         toolbar.addAction(act_compile)
 
-        act_export = QAction("📥 Exportar PDF", self)
+        act_export = QAction(get_icon("export"), "Exportar PDF", self)
         act_export.setToolTip("Exportar PDF (Ctrl+E)")
         act_export.triggered.connect(self.export_pdf_dialog)
         toolbar.addAction(act_export)
@@ -732,10 +734,10 @@ class MainWindow(QMainWindow):
         for path in recents:
             base_name = os.path.basename(path) or path
             if is_package_file(path):
-                act = self.recent_menu.addAction(f"📦  {base_name}")
+                act = self.recent_menu.addAction(get_icon("open_package"), base_name)
                 act.triggered.connect(lambda checked, p=path: self.open_package(p))
             else:
-                act = self.recent_menu.addAction(f"📁  {base_name}")
+                act = self.recent_menu.addAction(get_icon("folder"), base_name)
                 act.triggered.connect(lambda checked, p=path: self.open_project_folder(p))
             act.setToolTip(path)
             act.setStatusTip(path)
@@ -1289,8 +1291,8 @@ class MainWindow(QMainWindow):
             return
 
         menu = QMenu(self)
-        act_save = menu.addAction("💾  Salvar Esta Aba")
-        act_save_all = menu.addAction("💾  Salvar Todas as Abas")
+        act_save = menu.addAction(get_icon("save"), "Salvar Esta Aba")
+        act_save_all = menu.addAction(get_icon("save"), "Salvar Todas as Abas")
         menu.addSeparator()
         act_close = menu.addAction("❌  Fechar Aba")
         act_close_others = menu.addAction("❌  Fechar Outras Abas")

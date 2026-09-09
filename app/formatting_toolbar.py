@@ -18,6 +18,7 @@ from PyQt5.QtWidgets import (
 )
 
 from app.editor import MarkdownEditor
+from app.icons import get_icon
 
 
 class FormattingToolbar(QToolBar):
@@ -36,6 +37,7 @@ class FormattingToolbar(QToolBar):
         self.editor_provider = editor_provider
         self.image_importer = image_importer
         self.setMovable(False)
+        self.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         self.setObjectName("FormattingToolbar")
         self.init_style()
         self.build_tools()
@@ -119,11 +121,11 @@ class FormattingToolbar(QToolBar):
         """Cria e organiza todos os botões e seletores da barra de ferramentas."""
 
         # ── 1. Histórico: Desfazer / Refazer ──
-        act_undo = self.addAction("↩️")
+        act_undo = self.addAction(get_icon("undo"), "")
         act_undo.setToolTip("Desfazer (Ctrl+Z)")
         act_undo.triggered.connect(lambda: self._call_editor("undo"))
 
-        act_redo = self.addAction("↪️")
+        act_redo = self.addAction(get_icon("redo"), "")
         act_redo.setToolTip("Refazer (Ctrl+Y)")
         act_redo.triggered.connect(lambda: self._call_editor("redo"))
 
@@ -302,16 +304,18 @@ class FormattingToolbar(QToolBar):
         self.addSeparator()
 
         # ── 8. Tabelas, Links, Figuras e Fórmulas ──
-        act_table = self.addAction("⊞ Tabela")
+        act_table = self.addAction(get_icon("table"), "Tabela")
         act_table.setToolTip("Inserir Modelo de Tabela Markdown Formatada")
         act_table.triggered.connect(self._insert_table)
 
-        act_link = self.addAction("🔗 Link")
+        act_link = self.addAction(get_icon("link"), "Link")
         act_link.setToolTip("Inserir Link ([texto](url))")
         act_link.triggered.connect(self._insert_link)
 
         btn_fig = QToolButton(self)
-        btn_fig.setText("🖼️ Imagem")
+        btn_fig.setIcon(get_icon("image"))
+        btn_fig.setText("Imagem")
+        btn_fig.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
         btn_fig.setToolTip("Inserir ou Importar Imagem com Legenda e Fonte ABNT")
         btn_fig.setPopupMode(QToolButton.MenuButtonPopup)
 

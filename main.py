@@ -57,6 +57,13 @@ def main():
     if os.path.exists(icon_path):
         app.setWindowIcon(QIcon(icon_path))
 
+    # Configura fontes de fallback para renderização de emojis e símbolos Unicode em todo o sistema
+    from PyQt5.QtGui import QFont
+    families = [app.font().family(), "Sans Serif", "Ubuntu", "DejaVu Sans", "Segoe UI", "Arial"]
+    emoji_fallbacks = ["Noto Color Emoji", "Apple Color Emoji", "Segoe UI Emoji", "DejaVu Sans"]
+    for fam in families:
+        QFont.insertSubstitutions(fam, emoji_fallbacks)
+
     # 3. Exibe Splash Screen
     import time
     from app.splash import MKSplashScreen

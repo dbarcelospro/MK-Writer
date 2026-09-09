@@ -91,11 +91,19 @@ if command -v xdg-mime >/dev/null 2>&1; then
 fi
 
 # Copia para Área de Trabalho se existir
-DESKTOP_DIR="$HOME/Área de Trabalho"
-[ ! -d "$DESKTOP_DIR" ] && DESKTOP_DIR="$HOME/Desktop"
+if command -v xdg-user-dir >/dev/null 2>&1; then
+    DESKTOP_DIR="$(xdg-user-dir DESKTOP)"
+else
+    DESKTOP_DIR="$HOME/Área de Trabalho"
+    [ ! -d "$DESKTOP_DIR" ] && DESKTOP_DIR="$HOME/Área de trabalho"
+    [ ! -d "$DESKTOP_DIR" ] && DESKTOP_DIR="$HOME/Desktop"
+fi
 if [ -d "$DESKTOP_DIR" ]; then
     cp "$APPLICATIONS_DIR/mk-writer.desktop" "$DESKTOP_DIR/MK-Writer.desktop"
     chmod +x "$DESKTOP_DIR/MK-Writer.desktop"
+    if command -v gio >/dev/null 2>&1; then
+        gio set "$DESKTOP_DIR/MK-Writer.desktop" metadata::trusted yes 2>/dev/null || true
+    fi
 fi
 
 # Reinicia Nautilus para atualizar os ícones

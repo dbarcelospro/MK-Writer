@@ -187,9 +187,20 @@ Keywords=markdown;pdf;latex;abnt;editor;writer;mkw;mkdoc;
     print("✅ MK Writer configurado como aplicativo padrão para arquivos .mkw")
 
     # Copia para Área de Trabalho se existir
-    desktop_folder = os.path.expanduser("~/Área de Trabalho")
-    if not os.path.exists(desktop_folder):
-        desktop_folder = os.path.expanduser("~/Desktop")
+    desktop_folder = None
+    try:
+        res = subprocess.run(["xdg-user-dir", "DESKTOP"], capture_output=True, text=True, check=False)
+        if res.returncode == 0 and res.stdout.strip():
+            desktop_folder = res.stdout.strip()
+    except Exception:
+        pass
+
+    if not desktop_folder or not os.path.exists(desktop_folder):
+        for candidate in ["~/Área de Trabalho", "~/Área de trabalho", "~/Desktop"]:
+            expanded = os.path.expanduser(candidate)
+            if os.path.exists(expanded):
+                desktop_folder = expanded
+                break
 
     if os.path.exists(desktop_folder):
         target_desktop = os.path.join(desktop_folder, "MK-Writer.desktop")

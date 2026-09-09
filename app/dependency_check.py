@@ -19,6 +19,11 @@ def check_python_dependencies():
     except ImportError:
         missing.append("PyQtWebEngine (pip install PyQtWebEngine)")
 
+    try:
+        import pymupdf
+    except ImportError:
+        missing.append("PyMuPDF (pip install pymupdf)")
+
     if missing:
         msg = "As seguintes dependências do Python não foram encontradas:\n\n"
         for item in missing:
