@@ -270,15 +270,16 @@ def compile_markdown_to_pdf(
     work_dir = working_dir or os.getcwd()
 
     pandoc_bin = find_pandoc_executable()
-    pdf_engine, _ = find_pdf_engine()
+    pdf_engine, engine_path = find_pdf_engine()
 
     if not pandoc_bin:
         return None, "Erro: O executável do Pandoc não foi encontrado no sistema.", 0.0
 
     env = os.environ.copy()
-    venv_bin = os.path.join(sys.prefix, "bin")
-    if os.path.exists(venv_bin):
-        env["PATH"] = venv_bin + os.path.pathsep + env.get("PATH", "")
+    from app.dependency_check import get_app_search_paths
+    for sdir in get_app_search_paths():
+        if sdir not in env.get("PATH", ""):
+            env["PATH"] = sdir + os.path.pathsep + env.get("PATH", "")
 
     temp_md = None
     temp_pdf = None
@@ -564,7 +565,9 @@ li > p, li p {{
                 cmd.append(f"--metadata-file={temp_meta}")
 
         # Se uma engine de PDF for encontrada (ex: weasyprint, typst, pdflatex), adiciona a flag
-        if pdf_engine:
+        if engine_path:
+            cmd.append(f"--pdf-engine={engine_path}")
+        elif pdf_engine:
             cmd.append(f"--pdf-engine={pdf_engine}")
 
         # Executa a compilação garantindo o diretório de trabalho correto (CWD)

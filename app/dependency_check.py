@@ -34,17 +34,77 @@ def check_python_dependencies():
     return True, [], "Todas as dependências Python estão instaladas."
 
 
+def get_app_search_paths():
+    """
+    Retorna lista de diretórios onde ferramentas portáteis estáticas (pandoc, weasyprint, etc)
+    podem estar localizadas dentro do pacote da aplicação ou do ambiente.
+    """
+    paths = []
+    # 1. Diretório do executável compilado (dist/MK-Writer)
+    if sys.executable:
+        app_dir = os.path.dirname(os.path.abspath(sys.executable))
+        paths.extend([
+            app_dir,
+            os.path.join(app_dir, "_internal"),
+            os.path.join(app_dir, "bin"),
+            os.path.join(app_dir, "_internal", "bin"),
+        ])
+
+    # 2. Diretório temporário PyInstaller (se aplicável)
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass and os.path.exists(meipass):
+        paths.extend([meipass, os.path.join(meipass, "bin")])
+
+    # 3. Diretório raiz do projeto
+    proj_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    paths.extend([
+        proj_dir,
+        os.path.join(proj_dir, "bin"),
+        os.path.join(proj_dir, "resources", "bin"),
+    ])
+
+    # 4. venv bin/Scripts
+    if sys.prefix:
+        paths.extend([
+            os.path.join(sys.prefix, "bin"),
+            os.path.join(sys.prefix, "Scripts"),
+        ])
+
+    seen = set()
+    result = []
+    for p in paths:
+        if p and os.path.isdir(p):
+            norm = os.path.normpath(p)
+            if norm not in seen:
+                seen.add(norm)
+                result.append(norm)
+    return result
+
+
 def find_pandoc_executable():
     """
-    Tenta encontrar o executável do Pandoc via PATH do sistema ou via pypandoc.
-    Retorna o caminho do executável ou None se não for encontrado.
+    Tenta encontrar o executável do Pandoc:
+    1. No pacote portátil/estático local da aplicação
+    2. No PATH do sistema
+    3. Via pypandoc / pypandoc_binary se disponível
     """
-    # 1. Tenta encontrar no PATH
+    search_dirs = get_app_search_paths()
+    names = ["pandoc.exe", "pandoc"] if sys.platform.startswith("win") else ["pandoc", "pandoc.exe"]
+
+    # 1. Tenta encontrar dentro da pasta da aplicação (pacote estático)
+    for sdir in search_dirs:
+        for name in names:
+            full_path = os.path.join(sdir, name)
+            if os.path.isfile(full_path):
+                if sys.platform.startswith("win") or os.access(full_path, os.X_OK):
+                    return full_path
+
+    # 2. Tenta encontrar no PATH do sistema
     pandoc_path = shutil.which("pandoc")
     if pandoc_path:
         return pandoc_path
 
-    # 2. Tenta obter via pypandoc / pypandoc_binary se disponível
+    # 3. Tenta obter via pypandoc / pypandoc_binary se disponível
     try:
         import pypandoc
         path = pypandoc.get_pandoc_path()
@@ -58,17 +118,30 @@ def find_pandoc_executable():
 
 def find_pdf_engine():
     """
-    Procura por uma engine de PDF compatível com Pandoc (weasyprint, typst, pdflatex, xelatex, lualatex, typst, etc).
+    Procura por uma engine de PDF compatível com Pandoc:
+    1. No pacote portátil/estático local da aplicação (weasyprint.exe, typst.exe, etc)
+    2. No PATH do sistema
     Retorna (engine_name, engine_path_or_command) ou (None, None).
     """
-    # Ordem de preferência para engines leves e eficientes
     engines = ["weasyprint", "typst", "xelatex", "pdflatex", "lualatex", "wkhtmltopdf"]
+    exts = [".exe", ".bat", ".cmd", ""] if sys.platform.startswith("win") else ["", ".sh"]
 
-    # Adiciona diretório bin do venv atual ao PATH caso esteja rodando em venv
+    search_dirs = get_app_search_paths()
+
+    # 1. Procura na pasta da aplicação (pacote estático)
+    for eng in engines:
+        for sdir in search_dirs:
+            for ext in exts:
+                cand = os.path.join(sdir, eng + ext)
+                if os.path.isfile(cand):
+                    if sys.platform.startswith("win") or os.access(cand, os.X_OK):
+                        return eng, cand
+
+    # 2. Procura no PATH do sistema (adicionando search_dirs como fallback)
     env_path = os.environ.get("PATH", "")
-    sys_venv_bin = os.path.join(sys.prefix, "bin")
-    if os.path.exists(sys_venv_bin) and sys_venv_bin not in env_path:
-        env_path = sys_venv_bin + os.path.pathsep + env_path
+    for sdir in search_dirs:
+        if sdir not in env_path:
+            env_path = sdir + os.path.pathsep + env_path
 
     for eng in engines:
         cmd = shutil.which(eng, path=env_path)

@@ -36,6 +36,24 @@ jobs:
         run: |
           pyinstaller --noconfirm MK-Writer.spec
 
+      - name: Baixar e incluir Pandoc estatico para Windows
+        shell: powershell
+        run: |
+          Write-Host "Baixando Pandoc oficial para Windows..."
+          Invoke-WebRequest -Uri "https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-windows-x86_64.zip" -OutFile "pandoc.zip"
+          Expand-Archive -Path "pandoc.zip" -DestinationPath "pandoc_extracted"
+          Get-ChildItem -Path "pandoc_extracted" -Recurse -Filter "pandoc.exe" | ForEach-Object { Copy-Item $_.FullName -Destination "dist/MK-Writer/" -Force }
+          Write-Host "Pandoc estatico copiado para dist/MK-Writer com sucesso!"
+
+      - name: Baixar e incluir WeasyPrint estatico para Windows
+        shell: powershell
+        run: |
+          Write-Host "Baixando WeasyPrint standalone para Windows..."
+          Invoke-WebRequest -Uri "https://github.com/Kozea/WeasyPrint/releases/download/v70.0/weasyprint-windows-onefile.zip" -OutFile "weasyprint.zip"
+          Expand-Archive -Path "weasyprint.zip" -DestinationPath "weasyprint_extracted"
+          Get-ChildItem -Path "weasyprint_extracted" -Recurse -Filter "weasyprint.exe" | ForEach-Object { Copy-Item $_.FullName -Destination "dist/MK-Writer/" -Force }
+          Write-Host "WeasyPrint estatico copiado para dist/MK-Writer com sucesso!"
+
       - name: Incluir atalhos e manuais na distribuição Windows
         shell: powershell
         run: |
@@ -77,6 +95,15 @@ jobs:
       - name: Compilar aplicativo com PyInstaller
         run: |
           pyinstaller --noconfirm MK-Writer.spec
+
+      - name: Baixar e incluir Pandoc estatico para Linux
+        run: |
+          echo "Baixando Pandoc oficial para Linux..."
+          curl -sL "https://github.com/jgm/pandoc/releases/download/3.11/pandoc-3.11-linux-amd64.tar.gz" -o pandoc.tar.gz
+          tar -xzf pandoc.tar.gz
+          cp pandoc-*/bin/pandoc dist/MK-Writer/
+          chmod +x dist/MK-Writer/pandoc
+          echo "Pandoc estatico copiado para dist/MK-Writer com sucesso!"
 
       - name: Incluir atalho e manuais na distribuição Linux
         run: |
