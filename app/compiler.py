@@ -270,9 +270,9 @@ def process_latex_math_to_svg(markdown_text: str) -> str:
         if not code:
             return match.group(0)
         try:
-            svg = ziamath.Math.fromlatex(code, inline=False).svg()
+            svg = ziamath.Math.fromlatex(code, size=13.0, inline=False).svg()
             b64 = base64.b64encode(svg.encode("utf-8")).decode("ascii")
-            return f"\n\n<div class=\"math-display\"><img class=\"math display\" src=\"data:image/svg+xml;base64,{b64}\" alt=\"{code}\" /></div>\n\n"
+            return f'\n\n<div class="math-display"><img class="math-display" src="data:image/svg+xml;base64,{b64}" alt="{code}" /></div>\n\n'
         except Exception:
             return match.group(0)
 
@@ -281,9 +281,11 @@ def process_latex_math_to_svg(markdown_text: str) -> str:
         if not code or code.startswith("$") or code.endswith("$"):
             return match.group(0)
         try:
-            svg = ziamath.Math.fromlatex(code, inline=True).svg()
+            m = ziamath.Math.fromlatex(code, size=11.5, inline=True)
+            svg = m.svg()
+            v_ofst = m.getyofst()
             b64 = base64.b64encode(svg.encode("utf-8")).decode("ascii")
-            return f'<img class="math inline" src="data:image/svg+xml;base64,{b64}" alt="{code}" />'
+            return f'<img class="math-inline" style="vertical-align: {v_ofst:.2f}pt;" src="data:image/svg+xml;base64,{b64}" alt="{code}" />'
         except Exception:
             return match.group(0)
 
@@ -499,7 +501,7 @@ p.fonte {{
 ul, ol {{
     margin-top: 0.5em !important;
     margin-bottom: 0.5em !important;
-    padding-left: 2em !important;
+    padding-left: 1.25cm !important;
 }}
 
 li {{
@@ -520,21 +522,53 @@ li > p, li p {{
 /* Continuação automática de numeração para listas ordenadas interrompidas por parágrafos/questões */
 {ol_start_rules}
 
-/* Fórmulas Matemáticas LaTeX / WebTeX ABNT */
-.display.math, img.math.display, p:has(img.math.display) {{
-    display: block !important;
+/* Fórmulas Matemáticas LaTeX / SVG ABNT */
+img.math-inline, img.math.inline {{
+    height: auto !important;
+    width: auto !important;
+    max-height: none !important;
+    display: inline-block !important;
+    margin: 0 0.04em !important;
+    border: none !important;
+    box-shadow: none !important;
+}}
+
+div.math-display, .math-display {{
     text-align: center !important;
     text-indent: 0 !important;
     margin: 1.2em auto !important;
 }}
 
-img.math.inline {{
-    vertical-align: -0.25em !important;
-    display: inline-block !important;
+.math-display img, img.math-display, img.math.display {{
+    max-height: 3.5em !important;
+    height: auto !important;
+    width: auto !important;
+    margin: 0.5em auto !important;
+    display: block !important;
+    text-indent: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+}}
+
+/* Parágrafos com fórmulas inline mantêm o recuo ABNT de 1.25cm e alinhamento justificado */
+p:has(img.math-inline), p:has(img.math.inline) {{
+    text-align: justify !important;
+    text-indent: 1.25cm !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}}
+
+/* Imagens comuns dentro de parágrafos não afetam parágrafos de fórmulas */
+p img:not(.math-inline):not(.math-display) {{
+    display: block !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    max-width: 90% !important;
+    height: auto !important;
 }}
 </style>
 """
-        processed_md = code_css + "\n" + processed_md
+        processed_md = processed_md + "\n\n" + code_css
 
         # Salva o texto Markdown final em um arquivo temporário
         with tempfile.NamedTemporaryFile(

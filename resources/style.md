@@ -246,7 +246,7 @@ figure, div.figure, div.figura {
     break-inside: avoid !important;
 }
 
-figure img, p img, img, .figura img {
+figure img, p img:not(.math-inline):not(.math-display), img:not(.math-inline):not(.math-display), .figura img {
     display: block !important;
     margin-left: auto !important;
     margin-right: auto !important;
@@ -270,11 +270,19 @@ figcaption, .figura-titulo, .caption-titulo {
     text-indent: 0 !important;
 }
 
-p:has(img) {
+p:has(img:not(.math-inline):not(.math-display)) {
     text-align: center !important;
     text-indent: 0 !important;
     margin-top: 1.5em !important;
     margin-bottom: 0.5em !important;
+}
+
+/* Parágrafos com fórmulas inline mantêm recuo ABNT de 1.25cm e alinhamento justificado */
+p:has(img.math-inline), p:has(img.math.inline) {
+    text-align: justify !important;
+    text-indent: 1.25cm !important;
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
 }
 
 p:has(img) small,
@@ -487,7 +495,7 @@ p code, li code {
 ul, ol {
     margin-top: 0.5em !important;
     margin-bottom: 0.5em !important;
-    padding-left: 2em !important;
+    padding-left: 1.25cm !important;
 }
 
 li {
@@ -511,6 +519,36 @@ ol ol, ol[type="a"], ol.alineas {
 }
 ol ol ol {
     list-style-type: lower-roman !important;
+}
+
+/* ========================================== */
+/* FÓRMULAS MATEMÁTICAS LATEX / SVG ABNT      */
+/* ========================================== */
+img.math-inline, img.math.inline {
+    height: auto !important;
+    width: auto !important;
+    max-height: none !important;
+    display: inline-block !important;
+    margin: 0 0.04em !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+div.math-display, .math-display {
+    text-align: center !important;
+    text-indent: 0 !important;
+    margin: 1.2em auto !important;
+}
+
+.math-display img, img.math-display, img.math.display {
+    max-height: 3.5em !important;
+    height: auto !important;
+    width: auto !important;
+    margin: 0.5em auto !important;
+    display: block !important;
+    text-indent: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
 }
 </style>
 
