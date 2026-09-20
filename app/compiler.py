@@ -281,7 +281,7 @@ def process_latex_math_to_svg(markdown_text: str) -> str:
         if not code or code.startswith("$") or code.endswith("$"):
             return match.group(0)
         try:
-            m = ziamath.Math.fromlatex(code, size=11.5, inline=True)
+            m = ziamath.Math.fromlatex(code, size=12.0, inline=True)
             svg = m.svg()
             v_ofst = m.getyofst()
             b64 = base64.b64encode(svg.encode("utf-8")).decode("ascii")
