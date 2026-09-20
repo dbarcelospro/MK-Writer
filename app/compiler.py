@@ -471,6 +471,19 @@ li > p, li p {{
 
 /* Continuação automática de numeração para listas ordenadas interrompidas por parágrafos/questões */
 {ol_start_rules}
+
+/* Fórmulas Matemáticas LaTeX / WebTeX ABNT */
+.display.math, img.math.display, p:has(img.math.display) {{
+    display: block !important;
+    text-align: center !important;
+    text-indent: 0 !important;
+    margin: 1.2em auto !important;
+}}
+
+img.math.inline {{
+    vertical-align: -0.25em !important;
+    display: inline-block !important;
+}}
 </style>
 """
         processed_md = code_css + "\n" + processed_md
@@ -569,6 +582,10 @@ li > p, li p {{
             cmd.append(f"--pdf-engine={engine_path}")
         elif pdf_engine:
             cmd.append(f"--pdf-engine={pdf_engine}")
+
+        # Suporte a fórmulas matemáticas LaTeX (converte para SVG vetorial em engines HTML)
+        if pdf_engine in ["weasyprint", "wkhtmltopdf"]:
+            cmd.append("--webtex=https://latex.codecogs.com/svg.latex?")
 
         # Executa a compilação garantindo o diretório de trabalho correto (CWD)
         process = subprocess.run(

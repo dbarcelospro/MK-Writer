@@ -98,12 +98,37 @@ class MarkdownHighlighter(QSyntaxHighlighter):
         self.code_fence_format.setBackground(QColor("#1E2227"))
         self.code_fence_format.setForeground(QColor("#61AFEF"))  # Azul suave
 
+        # Formatação para delimitadores de bloco matemático multiline ($$)
+        self.math_fence_format = QTextCharFormat()
+        self.math_fence_format.setFontFamily("Consolas")
+        self.math_fence_format.setFontWeight(QFont.Bold)
+        self.math_fence_format.setForeground(QColor("#8B5CF6"))  # Roxo claro
+        self.math_fence_format.setBackground(QColor("#EDE9FE"))
+
+        # Fórmulas matemáticas em bloco ($$...$$)
+        self.math_block_format = QTextCharFormat()
+        self.math_block_format.setFontFamily("Consolas")
+        self.math_block_format.setForeground(QColor("#7C3AED"))  # Roxo elegante
+        self.math_block_format.setBackground(QColor("#F5F3FF"))  # Fundo lilás suave
+        self.math_block_format.setFontWeight(QFont.Bold)
+        self.highlighting_rules.append((re.compile(r"\$\$.*?\$\$"), self.math_block_format))
+
+        # Fórmulas matemáticas inline ($...$)
+        self.math_inline_format = QTextCharFormat()
+        self.math_inline_format.setFontFamily("Consolas")
+        self.math_inline_format.setForeground(QColor("#6D28D9"))  # Roxo escuro
+        self.math_inline_format.setBackground(QColor("#F5F3FF"))  # Fundo lilás suave
+        self.highlighting_rules.append((re.compile(r"(?<!\$)\$(?!\$)([^\$\n]+?)(?<!\$)\$(?!\$)"), self.math_inline_format))
+
     def highlightBlock(self, text):
-        # Verifica se estamos dentro de um bloco de código multiline (```)
+        prev_state = self.previousBlockState()
+        is_in_code = prev_state == 1
+        is_in_math = prev_state == 2
         self.setCurrentBlockState(0)
-        is_in_code = self.previousBlockState() == 1
 
         stripped = text.strip()
+
+        # Bloco de código multiline (```)
         if stripped.startswith("```"):
             if is_in_code:
                 # Fim do bloco de código
@@ -121,7 +146,21 @@ class MarkdownHighlighter(QSyntaxHighlighter):
             self.setCurrentBlockState(1)
             return
 
-        # Para linhas normais fora do bloco de código, aplica as regras padrão
+        # Delimitador de bloco matemático multiline ($$)
+        if stripped == "$$":
+            self.setFormat(0, len(text), self.math_fence_format)
+            if is_in_math:
+                self.setCurrentBlockState(0)
+            else:
+                self.setCurrentBlockState(2)
+            return
+
+        if is_in_math:
+            self.setFormat(0, len(text), self.math_block_format)
+            self.setCurrentBlockState(2)
+            return
+
+        # Para linhas normais fora de blocos, aplica as regras padrão
         for pattern, fmt in self.highlighting_rules:
             for match in pattern.finditer(text):
                 start, end = match.span()
