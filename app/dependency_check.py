@@ -1,5 +1,6 @@
 import os
 import shutil
+import subprocess
 import sys
 
 
@@ -81,6 +82,22 @@ def get_app_search_paths():
     return result
 
 
+def is_command_runnable(cmd_or_path: str) -> bool:
+    """Verifica se o comando ou executável realmente pode ser invocado com sucesso."""
+    if not cmd_or_path:
+        return False
+    try:
+        proc = subprocess.run(
+            [cmd_or_path, "--version"],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            timeout=2,
+        )
+        return proc.returncode == 0
+    except Exception:
+        return False
+
+
 def find_pandoc_executable():
     """
     Tenta encontrar o executável do Pandoc:
@@ -97,18 +114,19 @@ def find_pandoc_executable():
             full_path = os.path.join(sdir, name)
             if os.path.isfile(full_path):
                 if sys.platform.startswith("win") or os.access(full_path, os.X_OK):
-                    return full_path
+                    if is_command_runnable(full_path):
+                        return full_path
 
     # 2. Tenta encontrar no PATH do sistema
     pandoc_path = shutil.which("pandoc")
-    if pandoc_path:
+    if pandoc_path and is_command_runnable(pandoc_path):
         return pandoc_path
 
     # 3. Tenta obter via pypandoc / pypandoc_binary se disponível
     try:
         import pypandoc
         path = pypandoc.get_pandoc_path()
-        if os.path.exists(path):
+        if os.path.exists(path) and is_command_runnable(path):
             return path
     except Exception:
         pass
@@ -135,7 +153,8 @@ def find_pdf_engine():
                 cand = os.path.join(sdir, eng + ext)
                 if os.path.isfile(cand):
                     if sys.platform.startswith("win") or os.access(cand, os.X_OK):
-                        return eng, cand
+                        if is_command_runnable(cand):
+                            return eng, cand
 
     # 2. Procura no PATH do sistema (adicionando search_dirs como fallback)
     env_path = os.environ.get("PATH", "")
@@ -145,7 +164,7 @@ def find_pdf_engine():
 
     for eng in engines:
         cmd = shutil.which(eng, path=env_path)
-        if cmd:
+        if cmd and is_command_runnable(cmd):
             return eng, cmd
 
     return None, None

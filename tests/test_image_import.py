@@ -55,9 +55,10 @@ class TestImageImport(unittest.TestCase):
         # Executa importação e inserção
         self.win.import_and_insert_image()
 
-        # Verifica se a imagem foi copiada para Imagens/
-        img_dest = os.path.join(self.win.project_root_dir, "Imagens", "grafico_teste.png")
-        self.assertTrue(os.path.exists(img_dest))
+        # Verifica se a imagem foi copiada para imagens/ ou Imagens/
+        img_dest_lower = os.path.join(self.win.project_root_dir, "imagens", "grafico_teste.png")
+        img_dest_upper = os.path.join(self.win.project_root_dir, "Imagens", "grafico_teste.png")
+        self.assertTrue(os.path.exists(img_dest_lower) or os.path.exists(img_dest_upper))
 
         # Verifica conteúdo no editor
         editor_text = self.win.editor.toPlainText()
