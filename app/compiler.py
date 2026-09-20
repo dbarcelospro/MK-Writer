@@ -251,6 +251,50 @@ def document_wants_bibliography(markdown_text: str) -> bool:
     return False
 
 
+def process_latex_math_to_svg(markdown_text: str) -> str:
+    """
+    Converte expressões matemáticas LaTeX ($...$ e $$...$$) em imagens SVG incorporadas (data URI),
+    permitindo renderização vetorial de alta resolução 100% offline no WeasyPrint sem depender de rede.
+    """
+    try:
+        import ziamath
+        import base64
+    except ImportError:
+        return markdown_text
+
+    if "$" not in markdown_text:
+        return markdown_text
+
+    def replace_block_math(match):
+        code = match.group(1).strip()
+        if not code:
+            return match.group(0)
+        try:
+            svg = ziamath.Math.fromlatex(code, inline=False).svg()
+            b64 = base64.b64encode(svg.encode("utf-8")).decode("ascii")
+            return f"\n\n<div class=\"math-display\"><img class=\"math display\" src=\"data:image/svg+xml;base64,{b64}\" alt=\"{code}\" /></div>\n\n"
+        except Exception:
+            return match.group(0)
+
+    def replace_inline_math(match):
+        code = match.group(1).strip()
+        if not code or code.startswith("$") or code.endswith("$"):
+            return match.group(0)
+        try:
+            svg = ziamath.Math.fromlatex(code, inline=True).svg()
+            b64 = base64.b64encode(svg.encode("utf-8")).decode("ascii")
+            return f'<img class="math inline" src="data:image/svg+xml;base64,{b64}" alt="{code}" />'
+        except Exception:
+            return match.group(0)
+
+    import re
+    # 1. Fórmulas em bloco: $$ ... $$
+    text = re.sub(r"\$\$\s*([\s\S]+?)\s*\$\$", replace_block_math, markdown_text)
+    # 2. Fórmulas inline: $ ... $
+    text = re.sub(r"(?<!\$)\$(?!\$)([^\$\n]+?)(?<!\$)\$(?!\$)", replace_inline_math, text)
+    return text
+
+
 def compile_markdown_to_pdf(
     markdown_text: str,
     custom_output_path: str = None,
@@ -304,6 +348,10 @@ def compile_markdown_to_pdf(
             base_dir=work_dir,
             project_root=project_root
         )
+
+        # Converte fórmulas matemáticas LaTeX para SVG local incorporado (100% offline)
+        if pdf_engine in ["weasyprint", "wkhtmltopdf", None]:
+            processed_md = process_latex_math_to_svg(processed_md)
 
         # Injeta regras de estilo universais (código, tabelas, figuras, listas e continuação de numeração)
         ol_start_rules = "\n".join(
@@ -582,10 +630,6 @@ img.math.inline {{
             cmd.append(f"--pdf-engine={engine_path}")
         elif pdf_engine:
             cmd.append(f"--pdf-engine={pdf_engine}")
-
-        # Suporte a fórmulas matemáticas LaTeX (converte para SVG vetorial em engines HTML)
-        if pdf_engine in ["weasyprint", "wkhtmltopdf"]:
-            cmd.append("--webtex=https://latex.codecogs.com/svg.latex?")
 
         # Executa a compilação garantindo o diretório de trabalho correto (CWD)
         process = subprocess.run(
